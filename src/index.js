@@ -142,10 +142,13 @@ app.delete("/delete-client", async (req, res) => {
 
     try {
         await clientSupabase.query("BEGIN");
-
-        const response1 = await clientSupabase.query(query1, [id_cliente]);
-        const response2 = await clientSupabase.query(query2, [id_cliente]);
         const response3 = await clientSupabase.query(query3, [id_cliente])
+        const response2 = await clientSupabase.query(query2, [id_cliente]);
+        const response1 = await clientSupabase.query(query1, [id_cliente]);
+        
+        console.log("Respuest1: ", response1)
+        console.log("Respuest2: ", response2)
+        console.log("Respuest2: ", response2)
 
         if (response1.rowCount > 0 || response2.rowCount > 0 || response3.rowCount > 0) {
             await clientSupabase.query("COMMIT");
