@@ -127,7 +127,6 @@ app.put("/update-data-client", async(req,res)=>{
             return res.status(500).json({message: "Hubo un error al actualizar el cliente"})
         }
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ message: "Error interno del servidor, no se pudo mostrar los datos del cliente" });
     }
 });
