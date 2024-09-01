@@ -33,6 +33,20 @@ function getLocalDates() {
 
 const dates = getLocalDates();
 
+app.get("/fetch-dashboard-data", async(req,res)=>{
+    const query = 'SELECT * FROM vista_dashboard'
+    try {
+        const response = await clientSupabase.query(query)
+        if (response.rows) {
+            return res.status(200).send(response.rows)
+        }else{
+            return res.status(400).json({message: "Error al obtener los datos para el dashboard, recargue la página e intente nuevamente"})
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message: "Error interno del servidor: recargue la página e intente nuevamente"})
+    }
+})
 
 app.post("/create-client", async (req, res) => {
     console.log("Fecha de inicio: ",dates.localDate)
