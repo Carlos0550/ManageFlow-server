@@ -5,6 +5,12 @@ const cron = require("node-cron")
 const { v4: uuidv4 } = require('uuid');
 const clientSupabase = require("./DbConfiguration/supabaseClient.js")
 
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const app = express()
 const port = process.env.PORT || 4000
 app.use(express.json())
@@ -12,23 +18,15 @@ app.use(cors())
 app.get("/", (req,res)=>{
     res.send("Servidor ON")
 })
-
-
-
-
 function getLocalDates() {
-    function formatDate(date) {
-        return date.getFullYear() + "-" + 
-               String(date.getMonth() + 1).padStart(2, '0') + "-" + 
-               String(date.getDate()).padStart(2, '0');
-    }
+    // Configurar la zona horaria de Argentina
+    const argentinaTimezone = 'America/Argentina/Buenos_Aires';
 
-    let initDate = new Date();
-    let localDate = formatDate(initDate);
+    // Obtener la fecha actual en la zona horaria de Argentina
+    let localDate = dayjs().tz(argentinaTimezone).format('YYYY-MM-DD');
 
-    let endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + 1);
-    let localEndDate = formatDate(endDate);
+    // Sumar un mes y obtener la fecha en la zona horaria de Argentina
+    let localEndDate = dayjs().tz(argentinaTimezone).add(1, 'month').format('YYYY-MM-DD');
 
     return { localDate, localEndDate };
 }
@@ -37,6 +35,8 @@ const dates = getLocalDates();
 
 
 app.post("/create-client", async (req, res) => {
+    console.log("Fecha de inicio: ",dates.localDate)
+    console.log("Fecha de finalizacion: ", dates.localEndDate)
     const { parsedValues, valorCuota } = req.body;
     const uuidGenerated = uuidv4();
     const dataQuery3 = {
