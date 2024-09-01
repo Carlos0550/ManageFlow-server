@@ -183,7 +183,7 @@ app.delete("/delete-client", async (req, res) => {
 
 cron.schedule('0 0 * * *', async () => {
     console.log('Ejecutando tarea cron para actualizar estados de entregas...');
-    const query = "UPDATE membresias SET status = 'vencido' WHERE end_date <= CURRENT_DATE";
+    const query = "UPDATE membresias SET status = 'vencido' WHERE end_date <= start_date";
     
     try {
         const result = await clientSupabase.query(query);
