@@ -14,17 +14,34 @@ app.get("/", (req,res)=>{
 })
 
 
-let initDate = new Date().toISOString().split("T")[0]; 
-let endDate = new Date();
-endDate.setMonth(endDate.getMonth() + 1); 
-endDate = endDate.toISOString().split("T")[0];
+
+
+function getLocalDates() {
+    function formatDate(date) {
+        return date.getFullYear() + "-" + 
+               String(date.getMonth() + 1).padStart(2, '0') + "-" + 
+               String(date.getDate()).padStart(2, '0');
+    }
+
+    let initDate = new Date();
+    let localDate = formatDate(initDate);
+
+    let endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
+    let localEndDate = formatDate(endDate);
+
+    return { localDate, localEndDate };
+}
+
+const dates = getLocalDates();
+
 
 app.post("/create-client", async (req, res) => {
     const { parsedValues, valorCuota } = req.body;
     const uuidGenerated = uuidv4();
     const dataQuery3 = {
         entrega: valorCuota.precio_cuota,
-        fecha_entrega: initDate
+        fecha_entrega: dates.localDate
     }
 
     const query1 = 'INSERT INTO clientes(id_cliente, datos_cliente) VALUES($1, $2)';
@@ -32,7 +49,7 @@ app.post("/create-client", async (req, res) => {
     const query3 = 'INSERT INTO entregas(id_cliente,detalle_entrega) VALUES ($1, $2)'
 
     const arrayQuery1 = [uuidGenerated, parsedValues];
-    const arrayQuery2 = [uuidGenerated, initDate, endDate, 'activa'];
+    const arrayQuery2 = [uuidGenerated, dates.localDate, dates.localEndDate, 'activa'];
     const arrayQuery3 = [uuidGenerated, dataQuery3]
 
     if (parsedValues) {
@@ -187,7 +204,7 @@ app.post("/make-deliver", async(req,res)=>{
     try {
         await clientSupabase.query("BEGIN")
         const response1 = await clientSupabase.query(query1, [value, clientID])
-        const response2 = await clientSupabase.query(query2, [endDate,clientID])
+        const response2 = await clientSupabase.query(query2, [dates.localEndDate,clientID])
 
         if (response1.rowCount > 0 || response2.rowCount > 0) {
             await clientSupabase.query("COMMIT")
