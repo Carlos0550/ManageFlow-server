@@ -127,6 +127,7 @@ app.put("/update-data-client", async(req,res)=>{
             return res.status(500).json({message: "Hubo un error al actualizar el cliente"})
         }
     } catch (error) {
+        console.error("Error: ",error);
         return res.status(500).json({ message: "Error interno del servidor, no se pudo mostrar los datos del cliente" });
     }
 });
@@ -178,16 +179,16 @@ cron.schedule('22 20 * * *', async () => {
 });
 
 app.post("/make-deliver", async(req,res)=>{
-    const {clientID, value, entrega_id} = req.body
+    const {clientID, value} = req.body
 
     
-    const serializedQuery1 = JSON.stringify([value])
+    
     const query1 = 'UPDATE entregas SET detalle_entrega = $1 WHERE id_cliente = $2'
     const query2 = "UPDATE membresias SET status = 'activa', end_date = $1 WHERE id_cliente = $2"
     
     try {
         await clientSupabase.query("BEGIN")
-        const response1 = await clientSupabase.query(query1, [serializedQuery1, clientID])
+        const response1 = await clientSupabase.query(query1, [value, clientID])
         const response2 = await clientSupabase.query(query2, [endDate,clientID])
 
         if (response1.rowCount > 0 || response2.rowCount > 0) {
