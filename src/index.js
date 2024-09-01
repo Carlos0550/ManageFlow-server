@@ -21,11 +21,9 @@ endDate = endDate.toISOString().split("T")[0];
 
 app.post("/create-client", async (req, res) => {
     const { parsedValues, valorCuota } = req.body;
-
-
     const uuidGenerated = uuidv4();
     const dataQuery3 = {
-        entrega: valorCuota,
+        entrega: valorCuota.precio_cuota,
         fecha_entrega: initDate
     }
 
@@ -166,7 +164,7 @@ app.delete("/delete-client", async (req, res) => {
 });
 
 
-cron.schedule('22 20 * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
     console.log('Ejecutando tarea cron para actualizar estados de entregas...');
     const query = "UPDATE membresias SET status = 'vencido' WHERE end_date <= CURRENT_DATE";
     
